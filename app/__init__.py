@@ -26,9 +26,10 @@ def create_app(test_config=None):
     except OSError:
         pass
     
-    # Ensure the data directory exists
-    if not os.path.exists('data'):
-        os.makedirs('data', exist_ok=True)
+    # Ensure the data directory exists in the correct location
+    data_dir = os.path.abspath(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data'))
+    if not os.path.exists(data_dir):
+        os.makedirs(data_dir, exist_ok=True)
     
     # Set up extensions
     from app.extensions import db, jwt, ma
