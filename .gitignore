@@ -31,3 +31,4 @@ wheels/
 # Virtual environments
 venv/
 ENV/
+*.db
