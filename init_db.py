@@ -92,6 +92,31 @@ def check_db_path():
     
     return True
 
+def check_empty_database():
+    """Check if the database is empty (no personas)"""
+    try:
+        session = init_db()
+        result = session.execute(text("SELECT COUNT(*) FROM personas"))
+        count = result.scalar()
+        return count == 0
+    except Exception as e:
+        print(f"Error checking if database is empty: {str(e)}")
+        return False
+
+def add_default_personas():
+    """Add default personas if database is empty"""
+    try:
+        # Import here to avoid circular imports
+        from add_default_personas import add_default_personas as add_personas
+        
+        session = init_db()
+        add_personas(session)
+        return True
+    except Exception as e:
+        print(f"Error adding default personas: {str(e)}")
+        traceback.print_exc()
+        return False
+
 def main():
     """Main function to initialize the database"""
     print("Starting database initialization...")
@@ -105,12 +130,23 @@ def main():
         sys.exit(1)
     
     # Initialize the database
-    if initialize_database():
-        print("Database initialization completed successfully.")
-        sys.exit(0)
-    else:
+    if not initialize_database():
         print("Database initialization failed.")
         sys.exit(1)
+    
+    print("Database initialization completed successfully.")
+    
+    # Check if database is empty and add default personas if needed
+    if check_empty_database():
+        print("Database is empty. Adding default personas...")
+        if add_default_personas():
+            print("Default personas added successfully.")
+        else:
+            print("Failed to add default personas.")
+    else:
+        print("Database already contains personas. Skipping default persona creation.")
+    
+    sys.exit(0)
 
 if __name__ == "__main__":
     main()
